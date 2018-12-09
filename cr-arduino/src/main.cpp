@@ -12,13 +12,19 @@
 
 NeoSWSerial mySerial(BTH_RX, BTH_TX);
 
+// Line buffer to transmit only whole commands to the HM11
+#define SERIAL_BUFFER_SIZE 64
+static RingBuf<char, SERIAL_BUFFER_SIZE, int8_t> serial_buffer;
+
+// Triggering status
+static unsigned long long triggerMs = 0;
+static bool triggering = false;
+
 static void handleBtChar(uint8_t c) {
 	Serial.print((char)c);
 
 	if (c == 'H') {
-		digitalWrite(LED_BUILTIN, HIGH);
-	} else if (c == 'L') {
-		digitalWrite(LED_BUILTIN, LOW);
+		triggering = true;
 	}
 }
 
@@ -50,14 +56,6 @@ void setup() {
 	// Prepare main serial
 	Serial.begin(9600);
 }
-
-// Line buffer to transmit only whole commands to the HM11
-#define SERIAL_BUFFER_SIZE 64
-static RingBuf<char, SERIAL_BUFFER_SIZE, int8_t> serial_buffer;
-
-// Triggering status
-static unsigned long long triggerMs = 0;
-static bool triggering = false;
 
 void loop() {  
 	char c;
