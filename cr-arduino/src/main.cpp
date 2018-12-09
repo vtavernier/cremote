@@ -91,7 +91,7 @@ void serialEvent() {
     while (Serial.available()) {
         char c = Serial.read();
 
-        if (c != '\r') continue;
+        if (c == '\r') continue;
 
         if (c == '\n') {
             int8_t start1, len1, start2, len2;
