@@ -11,6 +11,7 @@ static Terminal term;
 // Triggering status
 static unsigned long long triggerMs = 0xFFFFFFFFll;
 static volatile bool triggering = false;
+static volatile bool trigger_ack = false;
 
 // Interrupt handlers
 void handleBtnTrigger() { triggering = true; }
@@ -58,9 +59,9 @@ void loop() {
         ble.sleep();
 
     // Check if the interrupt was triggered
-    if (triggering) {
+    if (triggering && !trigger_ack) {
         triggerMs = millis();
-        triggering = false;
+        trigger_ack = true;
 
         // Start waking up the module
         if (ble.state() == BS_Sleep)
@@ -76,6 +77,16 @@ void loop() {
         digitalWrite(OUTPUT_2, HIGH);
     } else if (now - triggerMs > 100) {
         digitalWrite(OUTPUT_1, HIGH);
+    } else if (now - triggerMs > 50) {
+        trigger_ack = false;
+        triggering = false;
+
+        // Check that the button is still HIGH
+        if (digitalRead(BTN_TRIGGER) != HIGH)
+        {
+            // Abort if the button is still actually LOW (i.e. rebound on press down)
+            triggerMs = 0xFFFFFFFFll;
+        }
     } else {
         digitalWrite(OUTPUT_1, LOW);
         digitalWrite(OUTPUT_2, LOW);
