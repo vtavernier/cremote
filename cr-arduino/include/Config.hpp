@@ -12,3 +12,7 @@
 #define BTH_RST 7
 #define BTH_RX 8
 #define BTH_TX 9
+
+#define OUTPUT_1 6
+#define OUTPUT_2 5
+#define BTN_TRIGGER 2

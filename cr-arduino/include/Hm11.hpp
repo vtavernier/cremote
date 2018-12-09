@@ -33,7 +33,7 @@ class Hm11 {
 public:
     Hm11();
 
-    void begin();
+    void begin(uint16_t baudrate);
     void reset();
 
     void poll(MessageHandler handler);

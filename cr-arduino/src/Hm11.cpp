@@ -32,7 +32,7 @@ Hm11::Hm11() : serial_(BTH_RX, BTH_TX), state_(BS_Standby), buffer_(), last_stat
 static Hm11 *hm11_;
 extern void handleBleChar(uint8_t c) { hm11_->buffer_.push_over(c); }
 
-void Hm11::begin() {
+void Hm11::begin(uint16_t baudrate) {
     // Set global ptr
     hm11_ = this;
 
@@ -41,7 +41,7 @@ void Hm11::begin() {
 
     // Prepare serial
     serial_.attachInterrupt(handleBleChar);
-    serial_.begin(9600);
+    serial_.begin(baudrate);
 }
 
 void Hm11::reset() {
