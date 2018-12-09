@@ -17,15 +17,20 @@ NeoSWSerial mySerial(BTH_RX, BTH_TX);
 static RingBuf<char, SERIAL_BUFFER_SIZE, int8_t> serial_buffer;
 
 // Triggering status
-static unsigned long long triggerMs = 0;
-static bool triggering = false;
+static unsigned long long triggerMs = 0xFFFFFFFFll;
+static volatile bool triggering = false;
 
-static void handleBtChar(uint8_t c) {
+void handleBtChar(uint8_t c) {
 	Serial.print((char)c);
 
 	if (c == 'H') {
 		triggering = true;
 	}
+}
+
+void handleBtnTrigger() {
+	// Simply trigger the button
+	triggering = true;
 }
 
 void setup() {  
@@ -55,6 +60,9 @@ void setup() {
 
 	// Prepare main serial
 	Serial.begin(9600);
+
+	// Handle button interrupts
+	attachInterrupt(digitalPinToInterrupt(BTN_TRIGGER), handleBtnTrigger, RISING);
 }
 
 void loop() {  
@@ -94,18 +102,10 @@ void loop() {
 		}
 	}
 
-	// Read button status
-	auto btnVal = digitalRead(BTN_TRIGGER);
-
-	if (btnVal == HIGH) {
-		digitalWrite(LED_BUILTIN, LOW);
-		if (triggering) {
-			triggerMs = millis();
-			triggering = false;
-		}
-	} else {
-		digitalWrite(LED_BUILTIN, HIGH);
-		triggering = true;
+	// Check if the interrupt was triggered
+	if (triggering) {
+		triggerMs = millis();
+		triggering = false;
 	}
 
 	auto now = millis();
