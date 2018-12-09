@@ -16,3 +16,7 @@
 #define OUTPUT_1 6
 #define OUTPUT_2 5
 #define BTN_TRIGGER 2
+
+#define REBOUND_MS 25
+#define MAX_PROGRAM_STEPS 30
+#define DEFAULT_HALFPRESS_DELAY 200
