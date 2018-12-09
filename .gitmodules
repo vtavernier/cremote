@@ -1,0 +1,3 @@
+[submodule "cr-arduino/lib/RingBuf"]
+	path = cr-arduino/lib/RingBuf
+	url = https://github.com/vtavernier/embedded-ringbuf.git
