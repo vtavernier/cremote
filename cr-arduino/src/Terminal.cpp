@@ -15,8 +15,6 @@ void Terminal::poll(LineHandler handler) {
         if (c == '\n') {
             // Invoke handler for complete line
             handler(buffer_);
-            // Clear line as it has been processed by the handler
-            buffer_.clear();
             // Discard \n
             continue;
         } else if (buffer_.full()) {
