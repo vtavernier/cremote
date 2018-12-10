@@ -1,7 +1,9 @@
 #pragma once
 
 #define LINE_BUFFER_SIZE 64
-#define BLE_VERBOSE 1
+#ifndef BLE_VERBOSE
+#define BLE_VERBOSE 0
+#endif
 
 #if BLE_VERBOSE
 #define BLE_DEBUG(msg) do { Serial.println(F(msg)); } while (0)
