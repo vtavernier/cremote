@@ -1,4 +1,45 @@
 <resources>
     <string name="app_name">CRemote</string>
     <string name="action_settings">Settings</string>
+    <string name="main_activity.program.context_menu.title">Etape</string>
+    <string name="edit_fragment_edit_button">Modifier</string>
+    <string name="edit_fragment_add_button">Ajouter</string>
+    <string name="edit_fragment_cancel_button">Annuler</string>
+    <string name="edit_fragment_remove_button">Supprimer</string>
+    <string name="saved_program_key">default_program</string>
+    <string-array name="duration_type_names">
+        <item>Millisecondes</item>
+        <item>Secondes</item>
+    </string-array>
+    <string-array name="press_duration_names">
+        <item>1/500\"</item>
+        <item>1/250\"</item>
+        <item>1/125\"</item>
+        <item>1/60\"</item>
+        <item>1/30\"</item>
+        <item>1/15\"</item>
+        <item>1/8\"</item>
+        <item>1/4\"</item>
+        <item>1/2\"</item>
+        <item>1\"</item>
+        <item>2\"</item>
+        <item>3\"</item>
+        <item>4\"</item>
+        <item>5\"</item>
+        <item>6\"</item>
+        <item>7\"</item>
+        <item>8\"</item>
+        <item>9\"</item>
+        <item>10\"</item>
+        <item>15\"</item>
+        <item>20\"</item>
+        <item>25\"</item>
+        <item>30\"</item>
+        <item>35\"</item>
+        <item>40\"</item>
+        <item>45\"</item>
+        <item>50\"</item>
+        <item>55\"</item>
+        <item>60\"</item>
+    </string-array>
 </resources>
