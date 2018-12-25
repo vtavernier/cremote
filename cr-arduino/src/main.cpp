@@ -130,27 +130,36 @@ static void cmd_handler(Stream &stream, RingBuf<char, LINE_BUFFER_SIZE, int8_t> 
         } else if (cmd_name == 'L') {
             // Load program from EEPROM
             uint8_t sc = EEPROM.read(0);
-            if (sc > MAX_PROGRAM_STEPS) {
+            if (sc == 0 || sc > MAX_PROGRAM_STEPS) {
                 stream.write("NO+L");
             } else {
-                program.set_step_count(sc);
-                for (size_t i = 0; i < sc; ++i) {
-                    for (int j = 0; j < 4; ++j) {
-                        auto address = 1 + 4 * i + j;
-                        digitalWrite(LED_BUILTIN, address % 2 == 0 ? HIGH : LOW);
-                        program.steps()[i].data()[j] = EEPROM.read(address);
-                    }
+                uint8_t last_sc = EEPROM.read(2 + 4 * sc);
+                if (last_sc != sc)
+                {
+                    stream.write("NO+L");
                 }
+                else
+                {
+                    program.set_step_count(sc);
+                    for (size_t i = 0; i < sc; ++i) {
+                        for (int j = 0; j < 4; ++j) {
+                            auto address = 1 + 4 * i + j;
+                            digitalWrite(LED_BUILTIN, address % 2 == 0 ? HIGH : LOW);
+                            program.steps()[i].data()[j] = EEPROM.read(address);
+                        }
+                    }
 
-                digitalWrite(LED_BUILTIN, ble.state() == BS_Connected ? HIGH : LOW);
-                // Notify the sender
-                stream.write("OK+L");
+                    digitalWrite(LED_BUILTIN, ble.state() == BS_Connected ? HIGH : LOW);
+                    // Notify the sender
+                    stream.write("OK+L");
+                }
             }
 
             processed = 4;
         } else if (cmd_name == 'S') {
             // Save program to EEPROM
             size_t sc = program.step_count();
+            EEPROM.update(2 + 4 * sc, 0);
             EEPROM.update(0, sc);
             for (size_t i = 0; i < sc; ++i) {
                 for (int j = 0; j < 4; ++j) {
@@ -159,6 +168,8 @@ static void cmd_handler(Stream &stream, RingBuf<char, LINE_BUFFER_SIZE, int8_t> 
                     EEPROM.update(address, program.steps()[i].data()[j]);
                 }
             }
+
+            EEPROM.update(2 + 4 * sc, sc);
 
             digitalWrite(LED_BUILTIN, ble.state() == BS_Connected ? HIGH : LOW);
             processed = 4;
