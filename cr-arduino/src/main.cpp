@@ -38,8 +38,8 @@ void increment_pc(unsigned long now, bool absolute = false, int d = 1) {
 }
 
 // Interrupt handlers
-static bool btn_triggered = false;
-static unsigned long btn_trigger_at;
+static volatile bool btn_triggered = false;
+static volatile unsigned long btn_trigger_at;
 
 void handleBtnTrigger() {
     btn_triggered = true;
@@ -99,6 +99,7 @@ void setup() {
     program.steps()[2].data()[3] = 0x0; // TG = 0
 
     // Handle button interrupts
+    EIFR = (1 << digitalPinToInterrupt(BTN_TRIGGER));
     attachInterrupt(digitalPinToInterrupt(BTN_TRIGGER), handleBtnTrigger, RISING);
 }
 
