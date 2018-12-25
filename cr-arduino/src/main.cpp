@@ -14,28 +14,17 @@ static Terminal term;
 // Program memory
 static Program<MAX_PROGRAM_STEPS> program;
 
-enum ProgramState {
-    PS_Standby,
-    PS_Downloading,
-    PS_Running,
-    PS_Toggle,
+enum GadgetState {
+    GS_Standby,
+    GS_Downloading,
+    GS_Running,
+    GS_Toggle,
 };
 
-static ProgramState state = PS_Standby;
-static volatile ProgramState requested_state = PS_Standby;
+static GadgetState state = GS_Standby;
+static volatile GadgetState requested_state = GS_Standby;
 
-static size_t program_counter;
-static unsigned long program_step_start;
-static unsigned long halfpress_delay;
-
-void increment_pc(unsigned long now, bool absolute = false, int d = 1) {
-    if (absolute)
-        program_counter = d;
-    else
-        program_counter += d;
-
-    program_step_start = now;
-}
+static ProgramState program_state;
 
 // Interrupt handlers
 static volatile bool btn_triggered = false;
@@ -47,14 +36,9 @@ void handleBtnTrigger() {
 }
 
 static void onStartRunning() {
-    // Reset program state
-    program_counter = 0;
-    program_step_start = millis();
-    halfpress_delay = DEFAULT_HALFPRESS_DELAY;
-
-    size_t max = program.step_count();
-    for (size_t i = 0; i < max; ++i)
-        program.steps()[i].begin();
+    // Reset program state and program step data
+    program_state.init();
+    program.init();
 }
 
 static void onStopRunning() {
@@ -115,14 +99,14 @@ static void cmd_handler(Stream &stream, RingBuf<char, LINE_BUFFER_SIZE, int8_t> 
 
         if (cmd_name == 'T') {
             // Trigger command, request state toggle
-            requested_state = PS_Toggle;
+            requested_state = GS_Toggle;
             processed = 4;
 
             // Notify the sender
             stream.write("OK+T");
         } else if (cmd_name == 'C') {
             // Clear command, start uploading
-            requested_state = PS_Downloading;
+            requested_state = GS_Downloading;
             processed = 4;
 
             // Notify the sender
@@ -203,7 +187,7 @@ static void cmd_handler(Stream &stream, RingBuf<char, LINE_BUFFER_SIZE, int8_t> 
 
                     // If this is the last download message, switch back to standby
                     if (is_last)
-                        requested_state = PS_Standby;
+                        requested_state = GS_Standby;
 
                     // We processed the entire message
                     processed = 5 + data_size;
@@ -228,7 +212,7 @@ void loop() {
     // Check for stuff from the bluetooth module
     ble.poll(ble_handler);
 
-    if (state != PS_Downloading) {
+    if (state != GS_Downloading) {
         // Put the bluetooth module to sleep if it's not in use
         // This only happens when not downloading, to handle reconnects faster
         if (ble.state() == BS_Standby && ble.last_change_elapsed() > 5000)
@@ -236,79 +220,44 @@ void loop() {
     }
 
     // Handle state change requests
-    if (state == PS_Standby && (requested_state == PS_Toggle || requested_state == PS_Running)) {
+    if (state == GS_Standby && (requested_state == GS_Toggle || requested_state == GS_Running)) {
         // Start running program
         onStartRunning();
 
-        requested_state = state = PS_Running;
-    } else if (state == PS_Running && (requested_state == PS_Toggle || requested_state == PS_Standby)) {
+        requested_state = state = GS_Running;
+    } else if (state == GS_Running && (requested_state == GS_Toggle || requested_state == GS_Standby)) {
         // Abort everything
         onStopRunning();
 
-        requested_state = state = PS_Standby;
-    } else if (state != PS_Downloading && requested_state == PS_Downloading) {
+        requested_state = state = GS_Standby;
+    } else if (state != GS_Downloading && requested_state == GS_Downloading) {
         // Stop running if it was the case
-        if (state == PS_Running)
+        if (state == GS_Running)
             onStopRunning();
 
         // Switching to download mode is initiated by a clear
         program.set_step_count(0);
-    } else if (state == PS_Downloading && requested_state == PS_Standby) {
+    } else if (state == GS_Downloading && requested_state == GS_Standby) {
         // Completing a download
-        requested_state = state = PS_Standby;
+        requested_state = state = GS_Standby;
     }
 
-    auto now = millis();
-
     // Are we running a program?
-    if (state == PS_Running) {
-        auto &step = program.steps()[program_counter];
-
-        if (step.name() == SN_PRESS) {
-            auto d = step.step_millis();
-
-            if (now - program_step_start > d + halfpress_delay) {
-                digitalWrite(OUTPUT_2, LOW);
-                digitalWrite(OUTPUT_1, LOW);
-
-                // Go to next step after press
-                increment_pc(now);
-            } else if (now - program_step_start > halfpress_delay) {
-                digitalWrite(OUTPUT_1, HIGH); // In case we somehow missed the first step
-                digitalWrite(OUTPUT_2, HIGH);
-            } else {
-                digitalWrite(OUTPUT_1, HIGH);
-            }
-        } else if (step.name() == SN_WAIT) {
-            if (now - program_step_start > step.step_millis()) {
-                increment_pc(now);
-            }
-        } else if (step.name() == SN_LOOP) {
-            if (step.loop_count_dec()) {
-                // true: keep iterating
-                increment_pc(now, true, step.loop_target());
-            } else {
-                // false: stop iterating
-                increment_pc(now);
-            }
-        } else if (step.name() == SN_SET_HALFPRESS) {
-            halfpress_delay = step.step_millis();
-
-            increment_pc(now);
-        }
+    if (state == GS_Running) {
+        auto result = program_state.next_step(program);
 
         // Detect program termination
-        if (program_counter >= program.step_count()) {
-            requested_state = state = PS_Standby;
+        if (result == PS_Completed) {
+            requested_state = state = GS_Standby;
         }
     }
 
     // Check if the interrupt was triggered
-    now = millis();
+    auto now = millis();
     if (btn_triggered) {
         if (now - btn_trigger_at > REBOUND_MS) {
             btn_triggered = false;
-            requested_state = PS_Toggle;
+            requested_state = GS_Toggle;
         }
     }
 }
