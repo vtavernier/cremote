@@ -274,6 +274,10 @@ void loop() {
                 // false: stop iterating
                 increment_pc(now);
             }
+        } else if (step.name() == SN_SET_HALFPRESS) {
+            halfpress_delay = step.step_millis();
+
+            increment_pc(now);
         }
 
         // Detect program termination

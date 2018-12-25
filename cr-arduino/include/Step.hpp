@@ -7,6 +7,7 @@ enum StepName {
     SN_WAIT = 'W',
     SN_PRESS = 'P',
     SN_LOOP = 'L',
+    SN_SET_HALFPRESS = 'H',
 };
 
 class Step {
