@@ -81,22 +81,27 @@ void setup() {
     term.begin(9600);
 
     // Load default program
-    program.set_step_count(3);
+    program.set_step_count(4);
 
     program.steps()[0].data()[0] = SN_WAIT;
     program.steps()[0].data()[1] = 0x1; // Delay in seconds
     program.steps()[0].data()[2] = 0x0;
     program.steps()[0].data()[3] = 0x1; // one unit
 
-    program.steps()[1].data()[0] = SN_PRESS;
+    program.steps()[1].data()[0] = SN_SET_HALFPRESS;
     program.steps()[1].data()[1] = 0x0; // Delay in milliseconds
-    program.steps()[1].data()[2] = 500 / 255;
-    program.steps()[1].data()[3] = 500 % 255;
+    program.steps()[1].data()[2] = 0x0;
+    program.steps()[1].data()[3] = 0x0; // zero units
 
-    program.steps()[2].data()[0] = SN_LOOP;
-    program.steps()[2].data()[1] = 0x0;
-    program.steps()[2].data()[2] = 0x2; // LC = 2
-    program.steps()[2].data()[3] = 0x0; // TG = 0
+    program.steps()[2].data()[0] = SN_PRESS;
+    program.steps()[2].data()[1] = 0x0; // Delay in milliseconds
+    program.steps()[2].data()[2] = 500 / 255;
+    program.steps()[2].data()[3] = 500 % 255;
+
+    program.steps()[3].data()[0] = SN_LOOP;
+    program.steps()[3].data()[1] = 0x0;
+    program.steps()[3].data()[2] = 0x2; // LC = 2
+    program.steps()[3].data()[3] = 0x0; // TG = 0
 
     // Handle button interrupts
     EIFR = (1 << digitalPinToInterrupt(BTN_TRIGGER));
