@@ -10,6 +10,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import com.google.gson.JsonParseException
+import com.vtavernier.cremote.fragments.EditLoopFragment
 import com.vtavernier.cremote.fragments.EditPressFragment
 import com.vtavernier.cremote.fragments.EditStepListener
 import com.vtavernier.cremote.fragments.EditWaitFragment
@@ -43,7 +44,10 @@ class MainActivity : AppCompatActivity(), EditStepListener {
                 showEditDialog(PressStep(StepDuration(DurationType.Millis, 33)), program.steps.size)
                 true
             }
-            menu.add(0, v.id, 2, "Boucler...")
+            menu.add(0, v.id, 2, "Boucler...").setOnMenuItemClickListener {
+                showEditDialog(LoopStep(program.steps[0], 1), program.steps.size)
+                true
+            }
         }
 
         val sharedPref = getPreferences(Context.MODE_PRIVATE)
@@ -105,8 +109,11 @@ class MainActivity : AppCompatActivity(), EditStepListener {
             val fragment = EditWaitFragment()
             fragment.show(supportFragmentManager, "add_wait_step")
         } else if (step is PressStep) {
-            var fragment = EditPressFragment()
+            val fragment = EditPressFragment()
             fragment.show(supportFragmentManager, "add_press_step")
+        } else if (step is LoopStep) {
+            val fragment = EditLoopFragment()
+            fragment.show(supportFragmentManager, "add_loop_step")
         }
     }
 
