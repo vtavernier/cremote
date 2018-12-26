@@ -12,17 +12,17 @@ void Step::handle(ProgramState &state) {
         auto halfpress_delay = state.halfpress_delay();
 
         if (elapsed > d + halfpress_delay) {
-            digitalWrite(OUTPUT_2, LOW);
-            digitalWrite(OUTPUT_1, LOW);
+            digitalWrite(state.fullpress_output(), LOW);
+            digitalWrite(state.halfpress_output(), LOW);
 
             // Go to next step after press
             state.increment_pc(now);
         } else if (elapsed > halfpress_delay) {
             // In case we somehow missed the first step
-            digitalWrite(OUTPUT_1, HIGH);
-            digitalWrite(OUTPUT_2, HIGH);
+            digitalWrite(state.halfpress_output(), HIGH);
+            digitalWrite(state.fullpress_output(), HIGH);
         } else {
-            digitalWrite(OUTPUT_1, HIGH);
+            digitalWrite(state.halfpress_output(), HIGH);
         }
     } else if (this->name() == SN_WAIT) {
         if (elapsed > this->step_millis()) {
@@ -38,6 +38,10 @@ void Step::handle(ProgramState &state) {
         }
     } else if (this->name() == SN_SET_HALFPRESS) {
         state.set_halfpress_delay(this->step_millis());
+        state.increment_pc(now);
+    } else if (this->name() == SN_SET_OUTPUTMAP) {
+        state.set_halfpress_output(this->output_map_halfpress());
+        state.set_fullpress_output(this->output_map_fullpress());
         state.increment_pc(now);
     }
 }

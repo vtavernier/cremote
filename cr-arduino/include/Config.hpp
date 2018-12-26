@@ -15,8 +15,8 @@
 #define BTH_RX 8
 #define BTH_TX 9
 
-#define OUTPUT_1 6
-#define OUTPUT_2 5
+#define DEFAULT_HALFPRESS_OUTPUT 6
+#define DEFAULT_FULLPRESS_OUTPUT 5
 #define BTN_TRIGGER 2
 
 #define REBOUND_MS 25

@@ -14,8 +14,8 @@ void Gadget::start_program() {
 
 void Gadget::stop_program() {
     // Abort outputs
-    digitalWrite(OUTPUT_1, LOW);
-    digitalWrite(OUTPUT_2, LOW);
+    digitalWrite(program_state_.fullpress_output(), LOW);
+    digitalWrite(program_state_.halfpress_output(), LOW);
 
     requested_state_ = state_ = GS_Standby;
 }

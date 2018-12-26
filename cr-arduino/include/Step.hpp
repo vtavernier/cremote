@@ -8,6 +8,7 @@ enum StepName {
     SN_PRESS = 'P',
     SN_LOOP = 'L',
     SN_SET_HALFPRESS = 'H',
+    SN_SET_OUTPUTMAP = 'O',
 };
 
 class ProgramState;
@@ -43,6 +44,9 @@ class Step {
         uint16_t mul = type ? 1000 : 1;
         return mul * (static_cast<uint16_t>(parts_[2]) << 8 | static_cast<uint16_t>(parts_[3]));
     }
+
+    inline int output_map_halfpress() const { return parts_[1]; }
+    inline int output_map_fullpress() const { return parts_[2]; }
 
     void handle(ProgramState &state);
 };

@@ -28,8 +28,8 @@ void setup() {
     pinMode(BTN_TRIGGER, INPUT_PULLUP);
 
     // 4n25 pins
-    pinMode(OUTPUT_1, OUTPUT);
-    pinMode(OUTPUT_2, OUTPUT);
+    pinMode(DEFAULT_HALFPRESS_OUTPUT, OUTPUT);
+    pinMode(DEFAULT_FULLPRESS_OUTPUT, OUTPUT);
 
     // Setup BLE
     ble.begin(9600);
