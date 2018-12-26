@@ -133,6 +133,10 @@ void Hm11::poll(MessageHandler handler) {
     }
 }
 
+void Hm11::set_name(const char *name) {
+    serial_.print(String("AT+NAME") + String(name));
+}
+
 bool Hm11::sleep() {
     if (state_ == BS_Standby) {
         setBleState(BS_SleepRequested);

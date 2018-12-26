@@ -38,6 +38,8 @@ public:
 
     void poll(MessageHandler handler);
 
+    void set_name(const char *name);
+
     bool sleep();
     bool wake();
 

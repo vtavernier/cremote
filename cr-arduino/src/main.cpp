@@ -34,6 +34,7 @@ void setup() {
     // Setup BLE
     ble.begin(9600);
     ble.reset();
+    ble.set_name("CRemote");
 
     // Prepare main serial
     term.begin(9600);
