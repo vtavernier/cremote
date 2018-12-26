@@ -39,7 +39,10 @@ void setup() {
     term.begin(9600);
 
     // Load default program
-    gadget.load_default_program();
+    if (!gadget.load_program(LOW)) {
+        gadget.load_default_program();
+        gadget.save_program(LOW);
+    }
 
     // Handle button interrupts
     EIFR = (1 << digitalPinToInterrupt(BTN_TRIGGER));
