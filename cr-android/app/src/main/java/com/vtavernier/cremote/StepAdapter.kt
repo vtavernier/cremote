@@ -10,7 +10,7 @@ import com.vtavernier.cremote.models.Program
 import com.vtavernier.cremote.models.Step
 
 class StepAdapter(private val program: Program, private val itemClickListener: RecyclerViewClickListener) : RecyclerView.Adapter<StepAdapter.StepViewHolder>() {
-    class StepViewHolder(view: View, private val clickListener: RecyclerViewClickListener) : RecyclerView.ViewHolder(view), View.OnClickListener, View.OnCreateContextMenuListener {
+    class StepViewHolder(private val program: Program, view: View, private val clickListener: RecyclerViewClickListener) : RecyclerView.ViewHolder(view), View.OnClickListener, View.OnCreateContextMenuListener {
         init {
             view.setOnClickListener(this)
             view.setOnCreateContextMenuListener(this)
@@ -30,7 +30,7 @@ class StepAdapter(private val program: Program, private val itemClickListener: R
 
         fun bind(step: Step, position: Int) {
             firstLine.text = step.getFirstHeader()
-            secondLine.text = step.getSubHeader()
+            secondLine.text = step.getSubHeader(program)
             iconText.text = position.toString()
         }
     }
@@ -39,7 +39,7 @@ class StepAdapter(private val program: Program, private val itemClickListener: R
         val view = LayoutInflater.from(parent.context)
                 .inflate(R.layout.step_item, parent, false)
 
-        return StepViewHolder(view, itemClickListener)
+        return StepViewHolder(program, view, itemClickListener)
     }
 
     override fun onBindViewHolder(holder: StepViewHolder, position: Int) {
