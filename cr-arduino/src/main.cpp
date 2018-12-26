@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <EEPROM.h>
 
-#include "Step.hpp"
+#include "ProgramState.hpp"
 #include "z85.hpp"
 
 #include "Hm11.hpp"
