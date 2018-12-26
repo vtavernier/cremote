@@ -38,7 +38,7 @@ void Gadget::load_default_program() {
     program_.steps()[1].data()[0] = SN_SET_HALFPRESS;
     program_.steps()[1].data()[1] = 0x0;  // Delay in milliseconds
     program_.steps()[1].data()[2] = 0x0;
-    program_.steps()[1].data()[3] = 0x0;  // zero units
+    program_.steps()[1].data()[3] = 100;  // 100 units
 
     program_.steps()[2].data()[0] = SN_PRESS;
     program_.steps()[2].data()[1] = 0x0;  // Delay in milliseconds
