@@ -69,7 +69,7 @@ class GadgetManager(context: Context) {
         }
     }
 
-    private fun getProgramDownloadCommands(program: Program): Collection<String> {
+    private fun getProgramDownloadCommands(program: Program, persist: Boolean): Collection<String> {
         val programBytes = program.toBytes()
         val commands = arrayListOf<String>()
 
@@ -113,15 +113,20 @@ class GadgetManager(context: Context) {
             commands.add(msg)
         }
 
+        // Save to EEPROM command
+        if (persist) {
+            commands.add("CR+S")
+        }
+
         return commands
     }
 
-    fun uploadProgram(program: Program, rxBleConnection: RxBleConnection,
+    fun uploadProgram(program: Program, persist: Boolean, rxBleConnection: RxBleConnection,
                       callback: () -> Unit, errorCallback: (Throwable) -> Unit) {
         var senderSubscription: Disposable? = null
 
         senderSubscription = rxBleConnection.sendCommand("CR+C")!!.flatMap {
-            val commands = getProgramDownloadCommands(program)
+            val commands = getProgramDownloadCommands(program, persist)
             var observable = rxBleConnection.sendCommand(commands.first())
 
             commands.stream().skip(1).forEach { command ->

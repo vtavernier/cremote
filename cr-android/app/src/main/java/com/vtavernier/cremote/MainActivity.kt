@@ -183,9 +183,12 @@ class MainActivity : AppCompatActivity(), EditStepListener {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         return when (item.itemId) {
-            R.id.action_settings -> true
+            R.id.action_test -> {
+                uploadProgram(false)
+                true
+            }
             R.id.action_upload -> {
-                uploadProgram()
+                uploadProgram(true)
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -204,7 +207,11 @@ class MainActivity : AppCompatActivity(), EditStepListener {
         GadgetManager(this)
     }
 
-    private fun uploadProgram() {
+    private var persistNextUpload: Boolean = false
+
+    private fun uploadProgram(persist: Boolean) {
+        persistNextUpload = persist
+
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
             // Permission is not granted
@@ -233,25 +240,25 @@ class MainActivity : AppCompatActivity(), EditStepListener {
                 val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
                 startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT)
             } else {
-                selectDeviceForUpload()
+                selectDeviceForUpload(persistNextUpload)
             }
         }
     }
 
-    private fun selectDeviceForUpload() {
+    private fun selectDeviceForUpload(persist: Boolean) {
         statusProgressBar.visibility = View.VISIBLE
 
         gadgetManager.selectDevice({ bleDevice ->
             Toast.makeText(this, bleDevice.macAddress, Toast.LENGTH_LONG).show()
-            uploadProgramToDevice()
+            uploadProgramToDevice(persist)
         }, ::handleBleError)
     }
 
-    private fun uploadProgramToDevice() {
+    private fun uploadProgramToDevice(persist: Boolean) {
         var connectionSubscription: Disposable? = null
 
         connectionSubscription = gadgetManager.connectDevice({ rxBleConnection ->
-            gadgetManager.uploadProgram(program, rxBleConnection, {
+            gadgetManager.uploadProgram(program, persist, rxBleConnection, {
                 Handler(mainLooper).post {
                     statusProgressBar.visibility = View.INVISIBLE
                     Toast.makeText(this, "Envoi terminé !", Toast.LENGTH_SHORT).show()
@@ -279,10 +286,10 @@ class MainActivity : AppCompatActivity(), EditStepListener {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == REQUEST_ENABLE_BT &&
                 resultCode == RESULT_OK) {
-            selectDeviceForUpload()
+            selectDeviceForUpload(persistNextUpload)
         } else if (requestCode == REQUEST_ACCESS_COARSE_LOCATION) {
             if (resultCode == PackageManager.PERMISSION_GRANTED) {
-                selectDeviceForUpload()
+                selectDeviceForUpload(persistNextUpload)
             } else {
                 Toast.makeText(this, "Envoi annulé", Toast.LENGTH_SHORT).show()
             }
