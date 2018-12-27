@@ -8,9 +8,9 @@ class Program {
     val steps = ArrayList<Step>()
 
     fun toBytes(): ByteArray {
-        val ints = IntArray(steps.size) { 0 }
-        steps.forEachIndexed { index, item ->
-            ints[index] = item.toInt32(this)
+        val ints = arrayListOf<Int>()
+        steps.forEach { item ->
+            ints.addAll(item.toInt32(this))
         }
 
         val bytes = ByteArray(ints.size * 4)

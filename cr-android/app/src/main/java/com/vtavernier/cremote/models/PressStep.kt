@@ -1,15 +1,20 @@
 package com.vtavernier.cremote.models
 
-data class PressStep(var duration: StepDuration) : Step() {
-    override fun toInt32(program: Program): Int {
-        return ('P'.toInt() shl 24) or duration.toInt24()
+import java.util.*
+
+data class PressStep(var duration: StepDuration, var halfPressDuration: StepDuration) : Step() {
+    override fun toInt32(program: Program): Collection<Int> {
+        return arrayListOf(
+                ('H'.toInt() shl 24) or halfPressDuration.toInt24(),
+                ('P'.toInt() shl 24) or duration.toInt24()
+        )
     }
 
     override fun getFirstHeader(): String {
-        return "Déclencher"
+        return "Déclencher (" + duration.toShutterSpeed() + ")"
     }
 
     override fun getSubHeader(program: Program): String {
-        return "Temps de pose : " + duration.toShutterSpeed()
+        return "Délai : " + halfPressDuration.toShutterSpeed()
     }
 }

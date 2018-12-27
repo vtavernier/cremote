@@ -54,7 +54,7 @@ class MainActivity : AppCompatActivity(), EditStepListener {
                 true
             }
             menu.add(0, v.id, 1, "Déclencher...").setOnMenuItemClickListener {
-                showEditDialog(PressStep(StepDuration(DurationType.Millis, 33)), program.steps.size)
+                showEditDialog(PressStep(StepDuration(DurationType.InverseSeconds, 60), StepDuration(DurationType.InverseSeconds, 2)), program.steps.size)
                 true
             }
             menu.add(0, v.id, 2, "Boucler...").setOnMenuItemClickListener {
@@ -74,7 +74,7 @@ class MainActivity : AppCompatActivity(), EditStepListener {
 
         if (program.steps.isEmpty()) {
             program.steps.add(WaitStep(StepDuration(DurationType.Seconds, 5)))
-            program.steps.add(PressStep(StepDuration(DurationType.Millis, 33)))
+            program.steps.add(PressStep(StepDuration(DurationType.InverseSeconds, 60), StepDuration(DurationType.InverseSeconds, 2)))
             saveProgram()
         }
 

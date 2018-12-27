@@ -1,8 +1,10 @@
 package com.vtavernier.cremote.models
 
+import java.util.*
+
 data class WaitStep(val duration: StepDuration) : Step() {
-    override fun toInt32(program: Program): Int {
-        return ('W'.toInt() shl 24) or duration.toInt24()
+    override fun toInt32(program: Program): Collection<Int> {
+        return Collections.singletonList(('W'.toInt() shl 24) or duration.toInt24())
     }
 
     override fun getFirstHeader(): String {
