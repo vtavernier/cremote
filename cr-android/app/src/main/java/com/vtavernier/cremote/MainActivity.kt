@@ -1,7 +1,15 @@
 package com.vtavernier.cremote
 
+import android.Manifest
+import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothManager
 import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.os.Handler
+import android.support.v4.app.ActivityCompat
+import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -9,18 +17,23 @@ import android.view.ContextMenu
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.ProgressBar
+import android.widget.Toast
 import com.google.gson.JsonParseException
 import com.vtavernier.cremote.fragments.EditLoopFragment
 import com.vtavernier.cremote.fragments.EditPressFragment
 import com.vtavernier.cremote.fragments.EditStepListener
 import com.vtavernier.cremote.fragments.EditWaitFragment
 import com.vtavernier.cremote.models.*
+import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity(), EditStepListener {
     private lateinit var stepListView: RecyclerView
     private lateinit var stepListViewAdapter: RecyclerView.Adapter<*>
     private lateinit var stepListViewManager: RecyclerView.LayoutManager
+
+    private lateinit var statusProgressBar: ProgressBar
 
     var program = Program()
 
@@ -91,6 +104,7 @@ class MainActivity : AppCompatActivity(), EditStepListener {
             adapter = stepListViewAdapter
         }
 
+        statusProgressBar = findViewById(R.id.status_progress_bar)
     }
 
     private fun deleteStep(position: Int) {
@@ -169,7 +183,115 @@ class MainActivity : AppCompatActivity(), EditStepListener {
         // as you specify a parent activity in AndroidManifest.xml.
         return when (item.itemId) {
             R.id.action_settings -> true
+            R.id.action_upload -> {
+                uploadProgram()
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    private val mBluetoothAdapter: BluetoothAdapter? by lazy(LazyThreadSafetyMode.NONE) {
+        val bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+        bluetoothManager.adapter
+    }
+
+    private val BluetoothAdapter.isDisabled: Boolean
+        get() = !isEnabled
+
+    private val gadgetManager by lazy {
+        GadgetManager(this)
+    }
+
+    private fun uploadProgram() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Permission is not granted
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                            Manifest.permission.ACCESS_COARSE_LOCATION)) {
+                // Show an explanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+            } else {
+                // No explanation needed, we can request the permission.
+                ActivityCompat.requestPermissions(this,
+                        arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION),
+                        REQUEST_ACCESS_COARSE_LOCATION)
+            }
+        } else {
+            startUploadProgram()
+        }
+    }
+
+    private fun startUploadProgram() {
+        // Ensures Bluetooth is available on the device and it is enabled. If not,
+        // displays a dialog requesting user permission to enable Bluetooth. )
+        mBluetoothAdapter?.apply {
+            if (isDisabled) {
+                val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+                startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT)
+            } else {
+                selectDeviceForUpload()
+            }
+        }
+    }
+
+    private fun selectDeviceForUpload() {
+        statusProgressBar.visibility = View.VISIBLE
+
+        gadgetManager.selectDevice({ bleDevice ->
+            Toast.makeText(this, bleDevice.macAddress, Toast.LENGTH_LONG).show()
+            uploadProgramToDevice()
+        }, ::handleBleError)
+    }
+
+    private fun uploadProgramToDevice() {
+        var connectionSubscription: Disposable? = null
+
+        connectionSubscription = gadgetManager.connectDevice({ rxBleConnection ->
+            gadgetManager.uploadProgram(program, rxBleConnection, {
+                Handler(mainLooper).post {
+                    statusProgressBar.visibility = View.INVISIBLE
+                    Toast.makeText(this, "Envoi terminé !", Toast.LENGTH_SHORT).show()
+                    connectionSubscription?.dispose()
+                }
+            }, { throwable -> handleBleError(throwable, connectionSubscription) })
+        }, { throwable -> handleBleError(throwable, connectionSubscription) })
+    }
+
+    private fun handleBleError(throwable: Throwable, connectionSubscription: Disposable?) {
+        try {
+            handleBleError(throwable)
+        } finally {
+            connectionSubscription?.dispose()
+        }
+    }
+
+    private fun handleBleError(throwable: Throwable) {
+        Handler(mainLooper).post {
+            statusProgressBar.visibility = View.INVISIBLE
+            Toast.makeText(this, throwable.toString(), Toast.LENGTH_LONG).show()
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == REQUEST_ENABLE_BT &&
+                resultCode == RESULT_OK) {
+            selectDeviceForUpload()
+        } else if (requestCode == REQUEST_ACCESS_COARSE_LOCATION) {
+            if (resultCode == PackageManager.PERMISSION_GRANTED) {
+                selectDeviceForUpload()
+            } else {
+                Toast.makeText(this, "Envoi annulé", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    companion object {
+        const val REQUEST_ENABLE_BT: Int = 1500
+        const val REQUEST_ACCESS_COARSE_LOCATION: Int = 1501
+
+        const val TAG: String = "MainActivity"
     }
 }

@@ -7,6 +7,7 @@
     <string name="edit_fragment_cancel_button">Annuler</string>
     <string name="edit_fragment_remove_button">Supprimer</string>
     <string name="saved_program_key">default_program</string>
+    <string name="action_upload">Envoyer</string>
     <string-array name="duration_type_names">
         <item>Millisecondes</item>
         <item>Secondes</item>

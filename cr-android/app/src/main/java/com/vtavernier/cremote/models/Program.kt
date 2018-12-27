@@ -7,13 +7,21 @@ import com.google.gson.typeadapters.RuntimeTypeAdapterFactory
 class Program {
     val steps = ArrayList<Step>()
 
-    fun toBytes(): IntArray {
-        val result = IntArray(steps.size) { 0 }
+    fun toBytes(): ByteArray {
+        val ints = IntArray(steps.size) { 0 }
         steps.forEachIndexed { index, item ->
-            result[index] = item.toInt32(this)
+            ints[index] = item.toInt32(this)
         }
 
-        return result
+        val bytes = ByteArray(ints.size * 4)
+        ints.forEachIndexed { index, item ->
+            bytes[index * 4 + 0] = ((item and 0xFF000000.toInt()) shr 24).toByte()
+            bytes[index * 4 + 1] = ((item and 0x00FF0000.toInt()) shr 16).toByte()
+            bytes[index * 4 + 2] = ((item and 0x0000FF00.toInt()) shr 8).toByte()
+            bytes[index * 4 + 3] = ((item and 0x000000FF.toInt())).toByte()
+        }
+
+        return bytes
     }
 
     fun toJson(): String {
