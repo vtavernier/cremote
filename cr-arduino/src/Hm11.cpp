@@ -66,64 +66,43 @@ void Hm11::poll(MessageHandler handler) {
             buffer_[1] == 'K' &&
             buffer_[2] == '+') {
             // OK+ : AT notification from module
+
             // Read CONN or LOST
-            if (buffer_.size() >= 7) {
-                if (buffer_[3] == 'C' &&
-                    buffer_[4] == 'O' &&
-                    buffer_[5] == 'N' &&
-                    buffer_[6] == 'N')
-                {
-                    setBleState(BS_Connected);
-                    buffer_.erase_front(7);
-                } else if (buffer_[3] == 'L' &&
-                           buffer_[4] == 'O' &&
-                           buffer_[5] == 'S' &&
-                           buffer_[6] == 'T') {
-                    setBleState(BS_Standby);
-                    buffer_.erase_front(7);
-                } else if (buffer_[3] == 'S' &&
-                           buffer_[4] == 'L' &&
-                           buffer_[5] == 'E' &&
-                           buffer_[6] == 'E') {
-                    if (buffer_.size() >= 8) {
-                        setBleState(BS_Sleep);
-                        buffer_.erase_front(8);
-                    }
-                } else if (buffer_[3] == 'W' &&
-                           buffer_[4] == 'A' &&
-                           buffer_[5] == 'K' &&
-                           buffer_[6] == 'E')
-                {
-                    setBleState(BS_Standby);
-                    buffer_.erase_front(7);
-                } else {
-                    // Garbage?
-                    int8_t start1, len1, start2, len2;
-                    const char *data = buffer_.data();
-
-                    // Read buffer parts
-                    buffer_.read_parts(start1, len1, start2, len2);
-
-                    if (len1 > 7) {
-                        Serial.write(data + start1, 7);
-                    } else {
-                        Serial.write(data + start1, len1);
-                        Serial.write(data + start2, 7 - len1);
-                    }
-                }
+            if (buffer_.size() >= 7 &&
+                buffer_[3] == 'C' &&
+                buffer_[4] == 'O' &&
+                buffer_[5] == 'N' &&
+                buffer_[6] == 'N')
+            {
+                setBleState(BS_Connected);
+                buffer_.erase_front(7);
+            } else if (buffer_.size() >= 7 &&
+                       buffer_[3] == 'L' &&
+                       buffer_[4] == 'O' &&
+                       buffer_[5] == 'S' &&
+                       buffer_[6] == 'T') {
+                setBleState(BS_Standby);
+                buffer_.erase_front(7);
+            } else if (buffer_.size() >= 8 &&
+                       buffer_[3] == 'S' &&
+                       buffer_[4] == 'L' &&
+                       buffer_[5] == 'E' &&
+                       buffer_[6] == 'E') {
+                setBleState(BS_Sleep);
+                buffer_.erase_front(8);
+            } else if (buffer_.size() >= 7 &&
+                       buffer_[3] == 'W' &&
+                       buffer_[4] == 'A' &&
+                       buffer_[5] == 'K' &&
+                       buffer_[6] == 'E') {
+                setBleState(BS_Standby);
+                buffer_.erase_front(7);
             }
         } else if (buffer_[0] == 'C' &&
                    buffer_[1] == 'R' &&
                    buffer_[2] == '+') {
             // CR+ : Canon Remote command
             handler(buffer_);
-        } else {
-            // Are we reading garbage? Pop one-by-one
-#if BLE_VERBOSE
-            Serial.print(buffer_.pop_front());
-#else
-            buffer_.pop_front();
-#endif
         }
     }
 
@@ -135,6 +114,8 @@ void Hm11::poll(MessageHandler handler) {
 
 void Hm11::set_name(const char *name) {
     serial_.print(String("AT+NAME") + String(name));
+    delay(50);
+    buffer_.clear();
 }
 
 bool Hm11::sleep() {
