@@ -110,6 +110,7 @@ class MainActivity : AppCompatActivity(), EditStepListener {
     private fun deleteStep(position: Int) {
         program.steps.removeAt(position)
         stepListViewAdapter.notifyItemRemoved(position)
+        stepListViewAdapter.notifyItemRangeChanged(position, program.steps.size - position)
     }
 
     private lateinit var currentStep: Step
