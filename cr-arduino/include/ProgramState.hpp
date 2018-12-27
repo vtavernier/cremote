@@ -10,13 +10,14 @@ enum ProgramStatus {
 class ProgramState {
     uint8_t program_counter_;
     unsigned long program_step_start_;
+    unsigned long program_step_start_micros_;
     unsigned long halfpress_delay_;
 
     int halfpress_output_;
     int fullpress_output_;
 
     friend Step;
-    void increment_pc(unsigned long now, bool absolute = false, int d = 1);
+    void increment_pc(bool absolute = false, int d = 1);
 
 public:
     ProgramState();
@@ -25,6 +26,9 @@ public:
 
     inline unsigned long elapsed(unsigned long now) const
     { return now - program_step_start_; }
+
+    inline unsigned long elapsed_micros(unsigned long now_micros) const
+    { return now_micros - program_step_start_micros_; }
 
     inline unsigned long halfpress_delay() const
     { return halfpress_delay_; }

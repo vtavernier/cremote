@@ -11,6 +11,12 @@ enum StepName {
     SN_SET_OUTPUTMAP = 'O',
 };
 
+enum DurationType {
+    DT_MILLIS = 0,
+    DT_SECONDS = 1,
+    DT_INVERSE_SECONDS = 2,
+};
+
 class ProgramState;
 
 class Step {
@@ -40,9 +46,31 @@ class Step {
     }
 
     inline unsigned long step_millis() const {
-        uint8_t type = parts_[1] & 0x1;
-        uint16_t mul = type ? 1000 : 1;
-        return mul * (static_cast<uint16_t>(parts_[2]) << 8 | static_cast<uint16_t>(parts_[3]));
+        uint8_t type = parts_[1] & 0x3;
+        unsigned long amount = (static_cast<uint16_t>(parts_[2]) << 8 | static_cast<uint16_t>(parts_[3]));
+
+        if (type == DT_MILLIS)
+            return amount;
+        else if (type == DT_SECONDS)
+            return 1000 * amount;
+        else if (type == DT_INVERSE_SECONDS)
+            return 1000 / amount;
+        else
+            return 0;
+    }
+
+    inline unsigned long step_micros() const {
+        uint8_t type = parts_[1] & 0x3;
+        unsigned long amount = (static_cast<uint16_t>(parts_[2]) << 8 | static_cast<uint16_t>(parts_[3]));
+
+        if (type == DT_MILLIS)
+            return 1000 * amount;
+        else if (type == DT_SECONDS)
+            return 1000000 * amount;
+        else if (type == DT_INVERSE_SECONDS)
+            return 1000000 / amount;
+        else
+            return 0;
     }
 
     inline int output_map_halfpress() const { return parts_[1]; }
