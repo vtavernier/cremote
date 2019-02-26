@@ -11,7 +11,7 @@ import com.vtavernier.cremote.R
 import com.vtavernier.cremote.models.DurationType
 import com.vtavernier.cremote.models.WaitStep
 
-class EditWaitFragment : BaseEditFragment<WaitStep>() {
+class EditWaitFragment : BaseEditFragment<WaitStep>("Attendre") {
     override fun initView(it: FragmentActivity, step: WaitStep): View {
         val view = (it.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater)
                 .inflate(R.layout.edit_wait_fragment, null)

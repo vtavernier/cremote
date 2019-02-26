@@ -9,7 +9,7 @@ import android.widget.Spinner
 import com.vtavernier.cremote.R
 import com.vtavernier.cremote.models.LoopStep
 
-class EditLoopFragment : BaseEditFragment<LoopStep>() {
+class EditLoopFragment : BaseEditFragment<LoopStep>("Boucler") {
     override fun initView(it: FragmentActivity, step: LoopStep): View {
         val view = (it.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater)
                 .inflate(R.layout.edit_loop_fragment, null)

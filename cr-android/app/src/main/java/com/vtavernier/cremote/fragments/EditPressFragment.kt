@@ -10,7 +10,7 @@ import com.vtavernier.cremote.R
 import com.vtavernier.cremote.models.PressStep
 import com.vtavernier.cremote.models.StepDuration
 
-class EditPressFragment : BaseEditFragment<PressStep>() {
+class EditPressFragment : BaseEditFragment<PressStep>("Déclencher") {
     override fun initView(it: FragmentActivity, step: PressStep): View {
         val view = (it.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater)
                 .inflate(R.layout.edit_press_fragment, null)

@@ -10,7 +10,7 @@ import android.view.View
 import com.vtavernier.cremote.R
 import com.vtavernier.cremote.models.Step
 
-abstract class BaseEditFragment<StepType : Step> : DialogFragment() {
+abstract class BaseEditFragment<StepType : Step>(private val dialogTitle: String) : DialogFragment() {
     private lateinit var mListener: EditStepListener
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -22,7 +22,7 @@ abstract class BaseEditFragment<StepType : Step> : DialogFragment() {
             val step = listener.getStep() as StepType
             val view = initView(it, step)
 
-            builder.setTitle("Attendre")
+            builder.setTitle(dialogTitle)
                     .setView(view)
                     .setPositiveButton(if (listener.canDelete()) {
                         R.string.edit_fragment_edit_button
