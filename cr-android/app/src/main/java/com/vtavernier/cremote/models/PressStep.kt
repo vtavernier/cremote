@@ -17,4 +17,8 @@ data class PressStep(var duration: StepDuration, var halfPressDuration: StepDura
     override fun getSubHeader(program: Program): String {
         return "Délai : " + halfPressDuration.toShutterSpeed()
     }
+
+    override fun toString(): String {
+        return getFirstHeader()
+    }
 }

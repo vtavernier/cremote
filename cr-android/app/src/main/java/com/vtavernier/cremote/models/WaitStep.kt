@@ -14,4 +14,8 @@ data class WaitStep(val duration: StepDuration) : Step() {
     override fun getSubHeader(program: Program): String {
         return ""
     }
+
+    override fun toString(): String {
+        return getFirstHeader()
+    }
 }

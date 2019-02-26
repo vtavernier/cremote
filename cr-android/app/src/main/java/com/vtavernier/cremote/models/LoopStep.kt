@@ -21,4 +21,8 @@ data class LoopStep(@Expose(serialize = false) var targetStep: Step?, var count:
     override fun getSubHeader(program: Program): String {
         return "Etape " + getTargetIndex(program) + " " + count + " itération(s)"
     }
+
+    override fun toString(): String {
+        return getFirstHeader()
+    }
 }
