@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
     <TextView
+        android:id="@+id/target_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingStart="5dp"
@@ -14,14 +15,18 @@
 
     <Spinner
         android:id="@+id/target_chooser"
+        android:layout_toRightOf="@id/target_label"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
     <TextView
-        android:layout_width="match_parent"
+        android:id="@+id/count_label"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@id/target_chooser"
         android:paddingStart="5dp"
         android:paddingEnd="5dp"
+        android:paddingTop="8dp"
         android:text="Répétitions"
         android:textAppearance="@android:style/TextAppearance.DialogWindowTitle"/>
 
@@ -29,7 +34,9 @@
         android:id="@+id/target_count"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@id/target_chooser"
+        android:layout_toRightOf="@id/count_label"
         android:paddingStart="5dp"
         android:paddingEnd="5dp"
         android:inputType="number" />
-</LinearLayout>
+</RelativeLayout>

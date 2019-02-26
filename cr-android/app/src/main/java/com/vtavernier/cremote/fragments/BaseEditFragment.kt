@@ -13,6 +13,10 @@ import com.vtavernier.cremote.models.Step
 abstract class BaseEditFragment<StepType : Step>(private val dialogTitle: String) : DialogFragment() {
     private lateinit var mListener: EditStepListener
 
+    protected fun getListener(): EditStepListener {
+        return mListener
+    }
+
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return activity?.let {
             // User the Builder class for convenient dialog construction

@@ -35,7 +35,7 @@ class MainActivity : AppCompatActivity(), EditStepListener {
 
     private lateinit var statusProgressBar: ProgressBar
 
-    var program = Program()
+    private var program = Program()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -170,6 +170,14 @@ class MainActivity : AppCompatActivity(), EditStepListener {
 
     override fun getStep(): Step {
         return currentStep
+    }
+
+    override fun getProgram(): Program {
+        return program
+    }
+
+    override fun getInsertLocation(): Int {
+        return currentPosition
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
