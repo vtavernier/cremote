@@ -1,8 +1,11 @@
 package com.vtavernier.cremote.models
 
+import com.google.gson.annotations.Expose
 import java.util.*
 
-data class LoopStep(val targetStep: Step, val count: Short) : Step() {
+data class LoopStep(@Expose(serialize = false) var targetStep: Step?, var count: Short) : Step() {
+    var serializedTargetIndex: Int = 0
+
     fun getTargetIndex(program: Program): Int {
         return program.steps.indexOfFirst { it === targetStep }
     }

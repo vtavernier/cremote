@@ -25,12 +25,26 @@ class Program {
     }
 
     fun toJson(): String {
+        for (step in steps) {
+            if (step is LoopStep) {
+                step.serializedTargetIndex = step.getTargetIndex(this)
+            }
+        }
+
         return getGson().toJson(this)
     }
 
     companion object {
         fun fromJson(str: String): Program {
-            return getGson().fromJson(str, Program::class.java)
+            val program = getGson().fromJson(str, Program::class.java)
+
+            for (step in program.steps) {
+                if (step is LoopStep) {
+                    step.targetStep = program.steps[step.serializedTargetIndex]
+                }
+            }
+
+            return program
         }
 
         private fun getGson(): Gson {
