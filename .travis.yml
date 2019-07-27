@@ -39,3 +39,16 @@ matrix:
         - platformio run -e pro8MHzatmega328
         - mkdir -p release
         - cp .pio/build/pro8MHzatmega328/firmware.hex release/firmware-minipro8mhz.hex
+
+deploy:
+  provider: releases
+  draft: true
+  file_glob: true
+  overwrite: true
+  skip_cleanup: true
+  api_key:
+    secure: JwTVDbaKBk9kGmu+WbXrRmRxm3iCcmlJyYesUe7cV0Z2WbCPHw5/Od9ujeU1a/Q6O7xFSJQTwA4njTEEH6K+P6WkD9AJc76Pxrfj435ZGQNMFtyG3W80HE/oKphKuJ1INS4ZqfMOG48XPWSiXWxzhEbsXkUG/sCoparcD7hoE6+vwxCTU8wC5FpF4jFIFOjrPAM2nVBhrg/IjLercMuTZAY5ZknhQr6l2T2htrqRxZVih4G8Ik+2BHw7KnJ88QLLNZFVCfoAmzU+vA7fUrzlG3ccAllJ4Pma9uzYAoZ9U9sdwUHVAOjVfC9Yt6PsjcaKNdE2rHwcnRoQhkJHdBgxHPPGWD1+5SVN9gYit0Y4AKm9Jj93JzqoH/Cn0gtxub+kre+79EKNANdZ1oe4OW/yglHE5C0HxDT0PElb/Tg2NsB7REj4kIAeVsxsA9xbwJAaoejoD7+C1tadlh1hpv8UITRbdJQX5pC8Py1j5hBrHMfZLrmwn7OIrPRNSK8qKpWbPnyg5c1IMfG6P2mzYNkiFEQozRMvePYuCzB1t7oogHx1xyw4z42NrNjQpr3Qs9r+phWsUH1+jdHPLROaTceu/jO4yYT8xFXVO5vdtmKn2Uh6uVrlxRCGdRPXh/+etuHRAoNczB3DYlsCJ+xN3psfvvBJilq3NG7qHCWSjdneZ+s=
+  file: release/*
+  on:
+    repo: vtavernier/cremote
+    tags: true
