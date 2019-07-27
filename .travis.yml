@@ -1,0 +1,40 @@
+matrix:
+  include:
+    - language: android
+      dist: trusty
+
+      android:
+        components:
+          - android-28
+
+      before_cache:
+        - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+        - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+
+      cache:
+        directories:
+          - $HOME/.gradle/caches/
+          - $HOME/.gradle/wrapper/
+          - $HOME/.android/build-cache
+
+      script:
+        - cd cr-android
+        - ./gradlew assembleRelease
+        - cd ..
+        - mkdir -p release
+        - cp cr-android/app/build/outputs/apk/release/app-release-unsigned.apk release/cremote-unsigned.apk
+    - language: python
+
+      cache:
+        directories:
+          - $HOME/.platformio
+
+      install:
+        - pip install -U platformio
+        - platformio update
+
+      script:
+        - cd cr-arduino
+        - platformio run -e pro8MHzatmega328
+        - mkdir -p release
+        - cp .pioenvs/pro8MHzatmega328/firmware.hex release/firmware-minipro8mhz.hex
