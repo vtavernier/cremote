@@ -38,4 +38,4 @@ matrix:
         - cd cr-arduino
         - platformio run -e pro8MHzatmega328
         - mkdir -p release
-        - cp .pioenvs/pro8MHzatmega328/firmware.hex release/firmware-minipro8mhz.hex
+        - cp .pio/build/pro8MHzatmega328/firmware.hex release/firmware-minipro8mhz.hex
