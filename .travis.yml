@@ -20,10 +20,11 @@ matrix:
 
       script:
         - cd cr-android
+        - openssl aes-256-cbc -K $encrypted_312722598e79_key -iv $encrypted_312722598e79_iv -in keystore.jks.enc -out keystore.jks -d
         - ./gradlew assembleRelease
         - cd ..
         - mkdir -p release
-        - cp cr-android/app/build/outputs/apk/release/app-release-unsigned.apk release/cremote-unsigned.apk
+        - cp cr-android/app/build/outputs/apk/release/app-release.apk release/cremote-signed.apk
     - language: python
 
       cache:
