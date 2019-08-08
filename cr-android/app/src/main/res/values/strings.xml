@@ -8,6 +8,7 @@
     <string name="saved_program_key">default_program</string>
     <string name="action_upload">Envoyer le programme</string>
     <string name="action_test">Tester le programme</string>
+    <string name="action_launch">Lancer le programme</string>
     <string-array name="duration_type_names">
         <item>Millisecondes</item>
         <item>Secondes</item>

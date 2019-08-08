@@ -151,6 +151,25 @@ class GadgetManager(context: Context) {
         })
     }
 
+    fun launchProgram(rxBleConnection: RxBleConnection, callback: () -> Unit,
+                      errorCallback: (Throwable) -> Unit) {
+        var senderSubscription: Disposable? = null
+
+        senderSubscription = rxBleConnection.sendCommand("CR+T")!!.subscribe({
+            try {
+                callback()
+            } finally {
+                senderSubscription?.dispose()
+            }
+        }, { throwable ->
+            try {
+                errorCallback(throwable)
+            } finally {
+                senderSubscription?.dispose()
+            }
+        })
+    }
+
     companion object {
         val CHARACTERISTIC_UUID = UUID.fromString("0000ffe1-0000-1000-8000-00805f9b34fb")
         val SERVICE_UUID = ParcelUuid.fromString("0000ffe0-0000-1000-8000-00805f9b34fb")

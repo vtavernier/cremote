@@ -199,6 +199,10 @@ class MainActivity : AppCompatActivity(), EditStepListener {
                 uploadProgram(true)
                 true
             }
+            R.id.action_launch -> {
+                launchProgram()
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -215,10 +219,10 @@ class MainActivity : AppCompatActivity(), EditStepListener {
         GadgetManager(this)
     }
 
-    private var persistNextUpload: Boolean = false
+    private var nextCallback: (() -> Unit)? = null
 
-    private fun uploadProgram(persist: Boolean) {
-        persistNextUpload = persist
+    private fun continueWithBluetooth(run: () -> Unit) {
+        nextCallback = run
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -236,11 +240,13 @@ class MainActivity : AppCompatActivity(), EditStepListener {
                         REQUEST_ACCESS_COARSE_LOCATION)
             }
         } else {
-            startUploadProgram()
+            nextCallback = null
+
+            continueWithDevice(run)
         }
     }
 
-    private fun startUploadProgram() {
+    private fun continueWithDevice(run: () -> Unit) {
         // Ensures Bluetooth is available on the device and it is enabled. If not,
         // displays a dialog requesting user permission to enable Bluetooth. )
         mBluetoothAdapter?.apply {
@@ -248,17 +254,26 @@ class MainActivity : AppCompatActivity(), EditStepListener {
                 val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
                 startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT)
             } else {
-                selectDeviceForUpload(persistNextUpload)
+                run()
             }
         }
     }
 
-    private fun selectDeviceForUpload(persist: Boolean) {
+    private fun uploadProgram(persist: Boolean) {
+        continueWithBluetooth { selectDeviceForAction { uploadProgramToDevice(persist) } }
+    }
+
+
+    private fun launchProgram() {
+        continueWithBluetooth { selectDeviceForAction { launchProgramOnDevice() } }
+    }
+
+    private fun selectDeviceForAction(run: () -> Unit) {
         statusProgressBar.visibility = View.VISIBLE
 
         gadgetManager.selectDevice({ bleDevice ->
             Toast.makeText(this, bleDevice.macAddress, Toast.LENGTH_LONG).show()
-            uploadProgramToDevice(persist)
+            run()
         }, ::handleBleError)
     }
 
@@ -270,6 +285,20 @@ class MainActivity : AppCompatActivity(), EditStepListener {
                 Handler(mainLooper).post {
                     statusProgressBar.visibility = View.INVISIBLE
                     Toast.makeText(this, "Envoi terminé !", Toast.LENGTH_SHORT).show()
+                    connectionSubscription?.dispose()
+                }
+            }, { throwable -> handleBleError(throwable, connectionSubscription) })
+        }, { throwable -> handleBleError(throwable, connectionSubscription) })
+    }
+
+    private fun launchProgramOnDevice() {
+        var connectionSubscription: Disposable? = null
+
+        connectionSubscription = gadgetManager.connectDevice({ rxBleConnection ->
+            gadgetManager.launchProgram(rxBleConnection, {
+                Handler(mainLooper).post {
+                    statusProgressBar.visibility = View.INVISIBLE
+                    Toast.makeText(this, "Programme lancé !", Toast.LENGTH_SHORT).show()
                     connectionSubscription?.dispose()
                 }
             }, { throwable -> handleBleError(throwable, connectionSubscription) })
@@ -294,10 +323,10 @@ class MainActivity : AppCompatActivity(), EditStepListener {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == REQUEST_ENABLE_BT &&
                 resultCode == RESULT_OK) {
-            selectDeviceForUpload(persistNextUpload)
+            continueWithDevice(nextCallback!!)
         } else if (requestCode == REQUEST_ACCESS_COARSE_LOCATION) {
             if (resultCode == PackageManager.PERMISSION_GRANTED) {
-                selectDeviceForUpload(persistNextUpload)
+                continueWithDevice(nextCallback!!)
             } else {
                 Toast.makeText(this, "Envoi annulé", Toast.LENGTH_SHORT).show()
             }

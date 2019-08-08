@@ -12,4 +12,9 @@
         android:title="@string/action_upload"
         android:icon="@android:drawable/ic_menu_save"
         app:showAsAction="ifRoom" />
+    <item android:id="@+id/action_launch"
+        android:orderInCategory="100"
+        android:title="@string/action_launch"
+        android:icon="@android:drawable/ic_media_play"
+        app:showAsAction="ifRoom" />
 </menu>
