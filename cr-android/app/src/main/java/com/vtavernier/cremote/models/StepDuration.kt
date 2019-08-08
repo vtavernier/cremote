@@ -13,7 +13,13 @@ data class StepDuration(var type: DurationType, var amount: Short) {
         else if (type == DurationType.Seconds)
             amount.toString() + "s"
         else // if (type == DurationType.InverseSeconds)
-            "1/" + amount.toString() + "\""
+        {
+            if (amount <= 1) {
+                amount.toString() + "\""
+            } else {
+                "1/" + amount.toString() + "\""
+            }
+        }
     }
 
     fun toShutterSpeed(): String {
@@ -29,7 +35,11 @@ data class StepDuration(var type: DurationType, var amount: Short) {
         } else if (type == DurationType.Seconds) {
             amount.toString() + "\""
         } else /* if (type == DurationType.InverseSeconds) */ {
-            "1/" + amount.toString() + "\""
+            if (amount <= 1) {
+                amount.toString() + "\""
+            } else {
+                "1/" + amount.toString() + "\""
+            }
         }
     }
 
