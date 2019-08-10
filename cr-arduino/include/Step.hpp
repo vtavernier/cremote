@@ -39,8 +39,12 @@ class Step {
     inline uint8_t loop_target() const { return parts_[3]; }
     inline uint16_t loop_count() const { return lc_; }
     inline bool loop_count_dec() {
-        if (lc_ == 0)
+        if (lc_ == 0) {
+            // Reset loop counter to allow nested loops
+            init();
             return false;
+        }
+
         lc_--;
         return true;
     }
